@@ -1,0 +1,27 @@
+     1                                  ;hello.asm
+     2                                  section .data
+     3 00000000 68656C6C6F2C20776F-         msg db "hello, world",0
+     3 00000009 726C6400           
+     4 0000000D 0A                          NL  db 0xa  ; ascii new line
+     5                                  
+     6                                  section .bss
+     7                                  section .text
+     8                                  	global main
+     9                                  main:
+    10 00000000 B801000000                mov   rax, 1        ; system call number (1: stdout) should be stored in rax
+    11 00000005 BF01000000                mov   rdi, 1        ; argument #1 in rdi: where to write (descriptor)?
+    12 0000000A 48BE-                     mov   rsi, msg  ; argument #2 in rsi: where does the string start?
+    12 0000000C [0000000000000000] 
+    13 00000014 BA0C000000                mov   rdx, 12       ; argument #3 in rdx: how many bytes to write? length of msg w/o 0
+    14 00000019 0F05                      syscall
+    15                                  
+    16 0000001B B801000000                mov rax, 1
+    17 00000020 BF01000000                mov rdi, 1
+    18 00000025 48BE-                     mov rsi, NL
+    18 00000027 [0D00000000000000] 
+    19 0000002F BA01000000                mov rdx, 1
+    20 00000034 0F05                      syscall
+    21                                  
+    22 00000036 B83C000000                mov   rax, 60       ; 'exit' syscall number
+    23 0000003B 4831FF                    xor   rdi, rdi      ; xor with self will zero bits == mov rdi, 0
+    24 0000003E 0F05                      syscall
