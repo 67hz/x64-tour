@@ -21,9 +21,10 @@
     21 00000011 4889E5                      mov     rbp, rsp
     22 00000014 4889F0                              mov     rax, rsi    ; rsi side2
     23 00000017 4801F8                              add     rax, rdi    ; + side1
-    24 0000001A 4801C0                              add     rax, rax    ; multiply @TODO try by 2 sal 1?
-    25 0000001D 4889EC                      mov     rsp, rbp
-    26 00000020 5D                          pop     rbp
-    27 00000021 C3                          ret
-    28                                  
+    24 0000001A 48D1E0                              sal     rax, 1
+    25                                              ; add     rax, rax    ; multiply @TODO try by 2 sal 1?
+    26 0000001D 4889EC                      mov     rsp, rbp
+    27 00000020 5D                          pop     rbp
+    28 00000021 C3                          ret
     29                                  
+    30                                  

@@ -21,7 +21,8 @@ r_circum:
     mov     rbp, rsp
             mov     rax, rsi    ; rsi side2
             add     rax, rdi    ; + side1
-            add     rax, rax    ; multiply @TODO try by 2 sal 1?
+            sal     rax, 1
+            ; add     rax, rax    ; multiply by 2, same as adding with itself or sal above
     mov     rsp, rbp
     pop     rbp
     ret
