@@ -1,5 +1,7 @@
+BIN_DIR = ./bin
+
 bits1: bits1.o printb.o printc.o
-	gcc -g -o bits1 bits1.o printb.o printc.o -no-pie
+	gcc -g -o $(BIN_DIR)/bits1 bits1.o printb.o printc.o -no-pie
 	
 
 bits1.o: bits1.asm

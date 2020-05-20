@@ -1,8 +1,9 @@
 ; printb.asm
 ; rdi holds value - 1st arg by convention
+; finalize value correctness, add space after every byte
 extern printf
 section .data
-    num_bits            dq          63
+    num_bits            dq          64
     fmt1                db          "%d",0
 section .bss
     s                   resq        1
