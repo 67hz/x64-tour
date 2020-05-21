@@ -14,6 +14,6 @@ printc.o: printc.asm
 	nasm -f elf64 -g -F dwarf printc.asm -l printc.lst
 
 clean:
-	rm *.o bits1
+	rm *.o *.lst ./bin/bits1
 
 .phony: clean
