@@ -9,9 +9,6 @@ section .data
     fmtstr              db          "%s",0
     blank_space         db          " ",0
     blank_line          db          "",10,0
-section .bss
-    resulti             resq        1
-    modulo              resq        1
 section .text
     global printc
 printc:
@@ -39,9 +36,9 @@ push        r12     ; callee-saved reg
         pop         rcx
 
 .andprint:
-        mov         rax, r12    ; copy target value into rax;
+        mov         rax, r12    ; copy target value into rax
         sar         rax, cl     ; must be 8 byte reg
-        and         rax, 1
+        and         rax, 1      ; want either a 1 or 0 to insert into string
 
         mov         rdi, fmt1
         mov         rsi, rax
@@ -49,7 +46,7 @@ push        r12     ; callee-saved reg
 ; printf steps on rcx so preserve or 
         push        rcx
         call        printf      ; @TODO call printf after processing all bits
-        pop         rcx         ; fails because rcx pops when 0 loads a garbage value
+        pop         rcx
 
         test        rcx,rcx     ; fastest is it a zero test
         jnz         .bloop
