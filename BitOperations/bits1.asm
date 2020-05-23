@@ -30,7 +30,6 @@ mov     rbp, rsp
         mov         rsi, msgn1      ; rsi 2nd arg into functions
         call        printmsg
         mov         rdi, [number1]  ; rdi 1st arg
-        ; call        printb
         call        printc
 ; print number 2
         mov         rsi, msgn2
