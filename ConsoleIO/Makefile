@@ -3,7 +3,7 @@ $(P): $(P).o
 
 
 $(P).o: $(P).asm
-	nasm -felf64 -g -F dwarf  $(P).asm -l $(P).lst
+	nasm -felf64 -ggdb3 -F dwarf  $(P).asm -l $(P).lst
 
 
 
