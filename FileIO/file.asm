@@ -30,7 +30,6 @@ section .data
 ; create mode (permissions)
         S_IRUSR     equ     00400q      ; user read permission
         S_IWUSR    equ     00200q
-
         NL          equ     0xa
         bufferlen   equ     64
         fileName    db      "testfile.txt",0
@@ -59,7 +58,7 @@ section .data
         success_Close   db  "File closed",NL,NL,0
         success_Write   db  "Written to file",NL,0
         success_Open    db  "File opened for R/W",NL,0
-        success_Append  db  "File opened for appeneding",NL,0
+        success_Append  db  "File opened for appending",NL,0
         success_Delete  db  "File deleted",NL,0
         success_Read    db  "Reading file",NL,0
         success_Position db     "Positioned in file",NL,0
@@ -104,10 +103,142 @@ main:
     mov     rdi, qword [FD]     ; writing clobbers rdi so put fd back
     call    closeFile
 %ENDIF
+%IF APPEND
+; OPEN ANE APPEND TO A FILE, THEN CLOSE ----------------------------------------
+; open file to append
+    mov     rdi, fileName
+    call    appendFile
+    mov     qword [FD], rax     ; save FD
+; write to file #3 APPEND
+    mov     rdi, qword [FD]     ; rdi gets FD for write call
+    mov     rsi, text3
+    mov     rdx, qword [len3]
+    call    writeFile
+; close file
+    mov     rdi, qword [FD]
+    call    closeFile
+%ENDIF
+%IF O_WRITE
+; OPEN AND OVERWRITE AT AN OFFSET IN A FILE, THEN CLOSE ------------------------
+; open file to write
+    mov     rdi, fileName
+    call    openFile
+    mov     qword [FD], rax     ; save FD
+; position file at offset
+    mov     rdi, qword [FD]
+    mov     rsi, qword [len2]   ; offset @ this location
+    mov     rdx, 0
+    call    positionFile
+; write to file at offset
+    mov     rdi, qword [FD]
+    mov     rsi, text4
+    mov     rdx, qword [len4]
+    call    writeFile
+; close file
+    mov     rdi, qword [FD]
+    call    closeFile
+%ENDIF
+%IF READ
+; OPEN AND READ FROM A FILE, THEN CLOSE ----------------------------------------
+; open file to read
+    mov     rdi, fileName
+    call    openFile
+    mov     qword [FD], rax     ; save FD
+; read from file
+    mov     rdi, qword [FD]
+    mov     rsi, buffer
+    mov     rdx, bufferlen      ; # chars to read
+    call    readFile
+    mov     rdi, rax            ; rax holds read data ATP
+    call    printString
+; close file
+    mov     rdi, qword [FD]
+    call    closeFile
+%ENDIF
+%IF O_READ
+; OPEN AND READ AT AN OFFSET FROM A FILE, THEN CLOSE ---------------------------
+; open file to read
+    mov     rdi, fileName
+    call    openFile
+    mov     qword [FD], rax     ; save returned FD
+; position file at offset
+    mov     rdi, qword[FD]      ; rdi holds FD in most system calls
+    mov     rsi, qword[len2]    ; offset in rsi
+    mov     rdx, 0              ; whence?
+    call    positionFile
+; read from file
+    mov     rdi, qword[FD]
+    mov     rsi, buffer
+    mov     rdx, 10             ; # chars to read
+    call    readFile
+    mov     rdi, rax            ; rax holds read data
+    call    printString         ; so print it
+; close file
+    mov     rdi, qword [FD]
+    call    closeFile
+%ENDIF
+%IF DELETE
+; DELETE A FILE ----------------------------------------------------------------
+; delete file
+    mov     rdi, fileName
+    call    deleteFile
+%ENDIF
 
 leave
 ret
 ; FILE MANIPULATION FUNCTIONS---------------------------------------------------
+;-------------------------------------------------------------------------------
+global readFile
+readFile:
+    mov     rax, NR_read
+    syscall         ; rax contains # chars read, reads into buffer in rsi
+    cmp     rax, 0
+    jl      readerror
+    mov     byte[rsi+rax],0 ; add a terminating 1
+    mov     rax, rsi
+
+    mov     rdi, success_Read
+    push    rax             ; caller saved - holding read data
+    call    printString
+    pop     rax
+    ret
+    
+readerror:
+    mov     rdi, error_Read
+    call    printString
+    ret
+;-------------------------------------------------------------------------------
+global positionFile
+positionFile:
+    mov     rax, NR_lseek
+    syscall
+    cmp     rax, 0
+    jl      positionerror
+    mov     rdi, success_Position
+    call    printString
+    ret
+positionerror:
+    mov     rdi, error_Position
+    call    printString
+    ret
+;-------------------------------------------------------------------------------
+global appendFile
+appendFile:
+    ; do we need to push rbp?
+    mov     rax, NR_open
+    mov     rsi, O_RDWR|O_APPEND
+    syscall
+    cmp     rax, 0
+    jl      appenderror
+    mov     rdi, success_Append
+    push    rax
+    call    printString
+    pop     rax
+    ret
+appenderror:
+    mov     rdi, error_Append
+    call    printString
+    ret
 ;-------------------------------------------------------------------------------
 global writeFile
 writeFile:
@@ -141,9 +272,9 @@ createerror:
     ret
 ;-------------------------------------------------------------------------------
 global openFile
-openFile:
-    mov     rax, NR_open
-    mov     rsi, O_RDWR
+openFile:   ; rdi has FD
+    mov     rax, NR_open        ; syscall # in rax
+    mov     rsi, O_RDWR         ; flags in rsi
     syscall
     cmp     rax, 0
     jl      .openerror
@@ -168,6 +299,19 @@ closeFile:
     ret
 closeerror:
     mov     rdi, error_Close
+    call    printString
+    ret
+global deleteFile
+deleteFile:
+    mov     rax, NR_unlink
+    syscall
+    cmp     rax, 0
+    jl      deleteerror
+    mov     rdi, success_Delete
+    call    printString
+    ret
+deleteerror:
+    mov     rdi, error_Delete
     call    printString
     ret
 ;-------------------------------------------------------------------------------
