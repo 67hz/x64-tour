@@ -29,7 +29,7 @@ section .data
 
 ; create mode (permissions)
         S_IRUSR     equ     00400q      ; user read permission
-        S_IWUSR    equ     00200q
+        S_IWUSR     equ     00200q
         NL          equ     0xa
         bufferlen   equ     64
         fileName    db      "testfile.txt",0
