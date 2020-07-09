@@ -1,10 +1,17 @@
+CC = gcc
+CFLAGS = -g
+OBJECTS = rect.o sreverse.o asum.o
+.SUFFIXES: .lst
 
-.SUFFIXES: .asm .txt
+all: $(OBJECTS)
 
-all: rect.o
+%.o: %.asm
+	nasm -felf64 -g -F dwarf $< -l $(basename $@).lst
 
-rect.o: rect.asm
-	nasm -felf64 -g -F dwarf $< -l $@.lst
 
-foo:
-	echo Gotcha
+clean:
+	rm -f *.o
+	rm -f *.lst
+
+
+.PHONY: clean
