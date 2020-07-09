@@ -8,7 +8,7 @@ section .data
     fmt1                db          "%d",0
     fmtstr              db          "%s",0
     blank_space         db          " ",0
-    blank_line          db          "",10,0
+    blank_line          db          0xA
 section .text
     global printc
 printc:
@@ -24,7 +24,7 @@ push        r12     ; callee-saved reg
         mov         rax, rcx
         inc         rax         ; rcx+1 % 8 == 0
         div         qword [byte_length]
-        cmp         rdx, 0
+        cmp         rdx, 0      ; rdx gets rem of div r/m64
         jg         .andprint
 
         ; print blank space between bytes
@@ -43,12 +43,12 @@ push        r12     ; callee-saved reg
         mov         rdi, fmt1
         mov         rsi, rax
         mov         rax, 0      ; no xmm0 registers
-; printf steps on rcx so preserve or 
+; printf steps on rcx so preserve
         push        rcx
         call        printf      ; @TODO call printf after processing all bits
         pop         rcx
 
-        test        rcx,rcx     ; fastest is it a zero test
+        test        rcx,rcx     ; fastest is a zero test
         jnz         .bloop
 
         mov         rdi, fmtstr
