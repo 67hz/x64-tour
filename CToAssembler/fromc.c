@@ -37,10 +37,12 @@ int main(int argc, char *argv[])
     printf("Enter the radius: \n");
     scanf("%lf", &radius);
 
+#if 0
     c_area = carea(radius);
     c_circum = ccircum(radius);
     printf("The area of the circle = %lf\n", c_area);
     printf("The circumference of the circle = %lf\n\n", c_circum);
+#endif
 
     // call asm func with string arg
     printf("Reverse a string.\n");
