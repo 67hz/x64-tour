@@ -71,5 +71,3 @@ main:
 ; exit
     mov rsp, rbp
     pop rbp             ; undo push from beginning
-    ret
-    
